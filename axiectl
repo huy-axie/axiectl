@@ -22,7 +22,6 @@ is_logged_in() {
 
 _dockerRun() {
 
-
   local checkNameRun=$(docker ps -a  -f status=running --format '{{.Names}}' | grep -E "($dockerName-blue|$dockerName-green)")
   
   set -x 
