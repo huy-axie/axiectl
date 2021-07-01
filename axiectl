@@ -22,21 +22,23 @@ is_logged_in() {
 
 _dockerRun() {
 
-  local checkNameRun=$(docker ps -a  -f status=running --format '{{.Names}}' | grep -E "($dockerName-blue|$dockerName-green)")
-  
-  set -x 
+	local checkNameRun=$(docker ps -a  -f status=running --format '{{.Names}}' | grep -E "($dockerName-blue|$dockerName-green)")
+  #set -x 
   if [[ $checkNameRun =~ .*blue.* ]]; then
     echo ":: RUNNING GREEN"
     $docker rm -f "$dockerName"-blue
     $docker run --restart=always --env-file /var/www/$env/"$dockerName".env -v /var/www/$env/"$dockerName"/"$dockerName"/$file:/$file --log-opt max-size=100m --name "$dockerName"-green  --network=host -d $dockerImage
-  set +x
+  #set +x
   elif [[ $checkNameRun =~ .*green.* ]]; then
     echo ":: RUNNING BLUE"
     $docker rm -f "$dockerName"-green
     $docker run --restart=always --env-file /var/www/$env/"$dockerName".env -v /var/www/$env/"$dockerName"/"$dockerName"/$file:/$file --log-opt max-size=100m --name "$dockerName"-blue  --network=host -d $dockerImage
   else
     echo ":: RUNNING DEFAULT BLUE"
-    $docker rm -f "$dockerName"-blue
+
+    if [ -z $(docker ps -a --format '{{.Names}}' | grep "$dockerName"-blue) ]; then
+      $docker rm -f "$dockerName"-blue
+    fi
     $docker run --restart=always --env-file /var/www/$env/"$dockerName".env -v /var/www/$env/"$dockerName"/"$dockerName"/$file:/$file --log-opt max-size=100m --name "$dockerName"-blue  --network=host -d $dockerImage
   fi
 }
@@ -44,19 +46,21 @@ _dockerRun() {
 _dockerRunNoMount() {
   echo ":: NO MOUNT VOLME DETECTED"
 	local checkNameRun=$(docker ps -a  -f status=running --format '{{.Names}}' | grep -E "($dockerName-blue|$dockerName-green)")
-  set -x
+  #set -x
   if [[ $checkNameRun =~ .*blue.* ]]; then
     echo ":: RUNNING GREEN"
     $docker rm -f "$dockerName"-blue
     $docker run --restart=always --env-file /var/www/$env/"$dockerName".env --log-opt max-size=100m --name "$dockerName"-green  --network=host -d $dockerImage
-  set +x
+  #set +x
   elif [[ $checkNameRun =~ .*green.* ]]; then
     echo ":: RUNNING BLUE"
     $docker rm -f "$dockerName"-green
     $docker run --restart=always --env-file /var/www/$env/"$dockerName".env --log-opt max-size=100m --name "$dockerName"-blue  --network=host -d $dockerImage
   else
+    if [ -z $(docker ps -a --format '{{.Names}}' | grep "$dockerName"-blue) ]; then
+      $docker rm -f "$dockerName"-blue
+    fi
     echo ":: RUNNING DEFAULT BLUE"
-    $docker rm -f "$dockerName"-blue
     $docker run --restart=always --env-file /var/www/$env/"$dockerName".env --log-opt max-size=100m --name "$dockerName"-blue  --network=host -d $dockerImage
   fi
 }
@@ -70,7 +74,6 @@ if [[ "$(is_logged_in)" == "false" ]]; then
 fi
 
 if [ -z "$file" ]
-
 then 
     _dockerRunNoMount
 else
