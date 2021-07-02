@@ -36,10 +36,13 @@ _dockerRun() {
   else
     echo ":: RUNNING DEFAULT BLUE"
 
-    if [ -z $(docker ps -a --format '{{.Names}}' | grep "$dockerName"-blue) ]; then
+    if [ -z $(docker ps -a --format '{{.Names}}' | grep "$dockerName"-blue) ]
+    then
+      $docker run --restart=always --env-file /var/www/$env/"$dockerName".env -v /var/www/$env/"$dockerName"/"$dockerName"/$file:/$file --log-opt max-size=100m --name "$dockerName"-blue  --network=host -d $dockerImage
+    else
       $docker rm -f "$dockerName"-blue
+      $docker run --restart=always --env-file /var/www/$env/"$dockerName".env -v /var/www/$env/"$dockerName"/"$dockerName"/$file:/$file --log-opt max-size=100m --name "$dockerName"-blue  --network=host -d $dockerImage
     fi
-    $docker run --restart=always --env-file /var/www/$env/"$dockerName".env -v /var/www/$env/"$dockerName"/"$dockerName"/$file:/$file --log-opt max-size=100m --name "$dockerName"-blue  --network=host -d $dockerImage
   fi
 }
 
@@ -57,11 +60,15 @@ _dockerRunNoMount() {
     $docker rm -f "$dockerName"-green
     $docker run --restart=always --env-file /var/www/$env/"$dockerName".env --log-opt max-size=100m --name "$dockerName"-blue  --network=host -d $dockerImage
   else
-    if [ -z $(docker ps -a --format '{{.Names}}' | grep "$dockerName"-blue) ]; then
-      $docker rm -f "$dockerName"-blue
-    fi
     echo ":: RUNNING DEFAULT BLUE"
-    $docker run --restart=always --env-file /var/www/$env/"$dockerName".env --log-opt max-size=100m --name "$dockerName"-blue  --network=host -d $dockerImage
+
+    if [ -z $(docker ps -a --format '{{.Names}}' | grep "$dockerName"-blue) ]
+    then
+      $docker run --restart=always --env-file /var/www/$env/"$dockerName".env -v /var/www/$env/"$dockerName"/"$dockerName"/$file:/$file --log-opt max-size=100m --name "$dockerName"-blue  --network=host -d $dockerImage
+    else
+      $docker rm -f "$dockerName"-blue
+      $docker run --restart=always --env-file /var/www/$env/"$dockerName".env -v /var/www/$env/"$dockerName"/"$dockerName"/$file:/$file --log-opt max-size=100m --name "$dockerName"-blue  --network=host -d $dockerImage
+    fi
   fi
 }
 
