@@ -69,11 +69,11 @@ _dockerRunNoMount() {
 
     if [ -z $(docker ps -a --format '{{.Names}}' | grep "$dockerName"-blue) ]
     then
-      $docker run --restart=always --env-file /var/www/$env/"$dockerName".env -v /var/www/$env/"$dockerName"/"$dockerName"/$file:/$file --log-opt max-size=100m --name "$dockerName"-blue  --network=host -d $dockerImage
+      $docker run --restart=always --env-file /var/www/$env/"$dockerName".env --log-opt max-size=100m --name "$dockerName"-blue  --network=host -d $dockerImage
     else
       echo ":: REMOVING ..."
       $docker rm -f "$dockerName"-blue
-      $docker run --restart=always --env-file /var/www/$env/"$dockerName".env -v /var/www/$env/"$dockerName"/"$dockerName"/$file:/$file --log-opt max-size=100m --name "$dockerName"-blue  --network=host -d $dockerImage
+      $docker run --restart=always --env-file /var/www/$env/"$dockerName".env --log-opt max-size=100m --name "$dockerName"-blue  --network=host -d $dockerImage
     fi
   fi
 }
