@@ -9,7 +9,7 @@ env=$2
 file=$3
 dockerImage=$4
 
-docker="sudo $(which docker || which docker.io)"
+docker="$(which docker || which docker.io)"
 
 
 is_logged_in() {
