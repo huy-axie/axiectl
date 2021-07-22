@@ -14,7 +14,7 @@ docker="$(which docker || which docker.io)"
 
 is_logged_in() {
   if [[ ! -f "/root/.docker/config.json" ]]; then
-    sudo cat /root/.docker/config.json | jq -r --arg url "gcr.io" '.auths | has($url)'
+    cat /root/.docker/config.json | jq -r --arg url "gcr.io" '.auths | has($url)'
   else
     echo "false"
   fi
